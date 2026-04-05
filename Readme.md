@@ -30,14 +30,43 @@ Open http://127.0.0.1:8000 and http://127.0.0.1:8000/docs
 
 ## Tests
 
-pytest                 # Run all tests
-pytest tests/test_e2e.py  # Run only Playwright tests
+To run all tests locally:
+
+```sh
+pytest
+```
+
+To run only Playwright end-to-end tests:
+
+```sh
+pytest tests/test_e2e.py
+```
 
 ## Logging
 
 - API calls and operations are logged  
 - Division by zero triggers an error log
 
-## CI
+## Docker
 
-GitHub Actions runs all tests on push to main branch.
+Build and run with Docker Compose:
+
+```sh
+docker-compose up --build
+```
+
+The app will be available at http://localhost:8000 and docs at http://localhost:8000/docs
+
+## CI/CD Pipeline
+
+- GitHub Actions runs all tests on every push to the main branch.
+- If tests pass, the workflow builds and pushes the Docker image to Docker Hub: `lgronnevik/fastapi-calculator`.
+- The pipeline uses a Postgres service for integration tests.
+
+
+## Docker Hub Repository
+
+Your Docker image is automatically pushed to Docker Hub by the CI/CD pipeline:
+
+- [View on Docker Hub](https://hub.docker.com/r/lgronnevik/fastapi-calculator)
+
