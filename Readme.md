@@ -42,6 +42,9 @@ To run only Playwright end-to-end tests:
 pytest tests/test_e2e.py
 ```
 
+> **Note:**  
+> This project includes unit tests for calculation logic, validation, and a factory pattern, as well as integration tests for the Calculation model and database. All tests are run automatically in CI/CD.
+
 ## Logging
 
 - API calls and operations are logged  

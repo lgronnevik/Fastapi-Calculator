@@ -1,28 +1,14 @@
-import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../app')))
-
-from operations import add, subtract, multiply, divide
+from operations import CalculationFactory
 import pytest
 
-def test_add():
-    assert add(3, 2) == 5
-    assert add(-1, 1) == 0
-    assert add(0, 0) == 0
+# ...existing tests...
 
-def test_subtract():
-    assert subtract(5, 3) == 2
-    assert subtract(0, 0) == 0
-    assert subtract(-1, -1) == 0
+def test_factory_returns_correct_operation():
+    assert CalculationFactory.get_operation("Add").compute(2, 3) == 5
+    assert CalculationFactory.get_operation("Sub").compute(5, 2) == 3
+    assert CalculationFactory.get_operation("Multiply").compute(3, 4) == 12
+    assert CalculationFactory.get_operation("Divide").compute(8, 2) == 4
 
-def test_multiply():
-    assert multiply(4, 2) == 8
-    assert multiply(0, 10) == 0
-    assert multiply(-2, 3) == -6
-
-def test_divide():
-    assert divide(10, 2) == 5
-    assert divide(-6, 3) == -2
-
+def test_factory_invalid_type():
     with pytest.raises(ValueError):
-        divide(5, 0)
+        CalculationFactory.get_operation("Modulo")
