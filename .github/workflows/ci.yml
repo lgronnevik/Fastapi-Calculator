@@ -47,9 +47,10 @@ jobs:
     - name: Install Playwright Browsers
       run: python -m playwright install --with-deps
 
+
     - name: Start FastAPI server in background
       run: |
-        nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+        nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 > server.log 2>&1 &
 
     - name: Wait for server
       run: |
@@ -57,7 +58,7 @@ jobs:
           nc -z localhost 8000 && echo "Server is up!" && exit 0
           sleep 1
         done
-        echo "Server did not start in time" && exit 1
+        echo "Server did not start in time" && tail -40 server.log && exit 1
 
     - name: Run unit & integration tests
       run: pytest --timeout=60 --ignore=tests/e2e/
