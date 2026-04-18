@@ -60,7 +60,7 @@ jobs:
         echo "Server did not start in time" && exit 1
 
     - name: Run unit & integration tests
-      run: pytest --timeout=60
+      run: pytest --timeout=60 --ignore=tests/e2e/
 
     - name: Run Playwright end-to-end tests
       run: pytest tests/e2e/
