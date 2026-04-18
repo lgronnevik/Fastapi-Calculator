@@ -37,23 +37,33 @@ jobs:
       with:
         python-version: 3.11
 
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pytest httpx playwright
-        playwright install
+
+    - name: Install Playwright Browsers
+      run: python -m playwright install --with-deps
 
     - name: Start FastAPI server in background
       run: |
         nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 &
-        sleep 5
+
+    - name: Wait for server
+      run: |
+        for i in {1..30}; do
+          nc -z localhost 8000 && echo "Server is up!" && exit 0
+          sleep 1
+        done
+        echo "Server did not start in time" && exit 1
 
     - name: Run unit & integration tests
       run: pytest
 
     - name: Run Playwright end-to-end tests
-      run: pytest tests/test_e2e.py
+      run: pytest tests/e2e/
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
