@@ -73,3 +73,9 @@ Your Docker image is automatically pushed to Docker Hub by the CI/CD pipeline:
 
 - [View on Docker Hub](https://hub.docker.com/r/lgronnevik/fastapi-calculator)
 
+## Integration Tests & OpenAPI
+
+- To run all integration tests locally: `pytest`
+- To manually check endpoints, visit [http://localhost:8000/docs](http://localhost:8000/docs) after starting the app.
+- All endpoints (user registration/login, calculation BREAD) are documented and testable in the OpenAPI UI.
+
