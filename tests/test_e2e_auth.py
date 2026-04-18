@@ -1,3 +1,12 @@
+import asyncio
+
+# Ensure all async fixtures share the same event loop in CI/CD
+import pytest
+@pytest.fixture(scope="session")
+def event_loop():
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
 import pytest
 from playwright.sync_api import sync_playwright
 import uuid
