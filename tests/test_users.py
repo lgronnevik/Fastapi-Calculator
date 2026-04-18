@@ -9,7 +9,7 @@ def test_create_user():
     username = f"testuser_{unique_id}"
     email = f"test_{unique_id}@example.com"
 
-    response = client.post("/users/register", json={
+    response = client.post("/register", json={
         "username": username,
         "email": email,
         "password": "password123"
@@ -17,16 +17,17 @@ def test_create_user():
 
     assert response.status_code == 200
     data = response.json()
-    assert data["username"] == username
-    assert data["email"] == email
+    # Only access_token and token_type are returned
+    assert "access_token" in data
+    assert data["token_type"] == "bearer"
 
     # Test login with the same credentials
     login_response = client.post(
-        "/users/login",
-        data={"username": username, "password": "password123"},
+        "/login",
+        data={"username": email, "password": "password123"},
         headers={"Content-Type": "application/x-www-form-urlencoded"}
     )
     assert login_response.status_code == 200
     login_data = login_response.json()
-    assert login_data["username"] == username
-    assert login_data["email"] == email
+    assert "access_token" in login_data
+    assert login_data["token_type"] == "bearer"
