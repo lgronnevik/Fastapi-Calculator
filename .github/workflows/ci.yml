@@ -64,7 +64,11 @@ jobs:
       run: pytest --timeout=60 --ignore=tests/e2e/
 
     - name: Run Playwright end-to-end tests
-      run: pytest tests/e2e/
+      run: pytest -v --tb=short --timeout=60 tests/e2e/
+
+    - name: Print server log after E2E tests
+      if: always()
+      run: tail -40 server.log || true
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
