@@ -1,9 +1,14 @@
-from fastapi import FastAPI, HTTPException, Depends
+
+from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+import os
 from sqlalchemy.orm import Session
 import logging
-
 from app.operations import add, subtract, multiply, divide
 from app import models, schemas, database, auth
+
+app = FastAPI(title="FastAPI Calculator")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -11,7 +16,19 @@ logging.basicConfig(level=logging.INFO)
 # Create DB tables
 models.Base.metadata.create_all(bind=database.engine)
 
-app = FastAPI(title="FastAPI Calculator")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "..", "templates"))
+
+# ----------------------
+# FRONTEND ROUTES
+# ----------------------
+@app.get("/register", response_class=HTMLResponse)
+def serve_register(request: Request):
+    return templates.TemplateResponse("register.html", {"request": request})
+
+@app.get("/login", response_class=HTMLResponse)
+def serve_login(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
 
 # Dependency to get DB session
 def get_db():
@@ -60,7 +77,8 @@ def divide_numbers(a: float, b: float):
 # USER ROUTES (NEW)
 # ----------------------
 # User Registration Endpoint
-@app.post("/users/register", response_model=schemas.UserRead)
+# User Registration Endpoint (returns JWT)
+@app.post("/register")
 def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     logging.info(f"Registering user: {user.username}")
     existing_user = db.query(models.User).filter(
@@ -79,19 +97,23 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+    # Create JWT
+    access_token = auth.create_access_token({"sub": new_user.email})
     logging.info(f"User registered: {user.username}")
-    return new_user
+    return {"access_token": access_token, "token_type": "bearer"}
 
 # User Login Endpoint
 from fastapi import status
 from fastapi.security import OAuth2PasswordRequestForm
 
-@app.post("/users/login")
+# User Login Endpoint (returns JWT)
+@app.post("/login")
 def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.username == form_data.username).first()
+    user = db.query(models.User).filter(models.User.email == form_data.username).first()
     if not user or not auth.verify_password(form_data.password, user.password_hash):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username or password")
-    return {"message": "Login successful", "username": user.username, "email": user.email}
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
+    access_token = auth.create_access_token({"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
 
 # ----------------------
 # CALCULATION ROUTES (BREAD)

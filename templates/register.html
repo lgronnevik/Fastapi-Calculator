@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; }
+        .error { color: red; }
+        .success { color: green; }
+        form { max-width: 300px; margin: auto; }
+        input { display: block; margin-bottom: 1em; width: 100%; padding: 0.5em; }
+    </style>
+</head>
+<body>
+    <h2>Register</h2>
+    <form id="registerForm">
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Password (min 6 chars)" required />
+        <input type="password" id="confirm" placeholder="Confirm Password" required />
+        <button type="submit">Register</button>
+    </form>
+    <div id="message"></div>
+    <script>
+        const form = document.getElementById('registerForm');
+        const message = document.getElementById('message');
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            message.textContent = '';
+            message.className = '';
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirm').value;
+            if (!email.match(/^[^@]+@[^@]+\.[^@]+$/)) {
+                message.textContent = 'Invalid email format.';
+                message.className = 'error';
+                return;
+            }
+            if (password.length < 6) {
+                message.textContent = 'Password must be at least 6 characters.';
+                message.className = 'error';
+                return;
+            }
+            if (password !== confirm) {
+                message.textContent = 'Passwords do not match.';
+                message.className = 'error';
+                return;
+            }
+            try {
+                const resp = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: email, email, password })
+                });
+                const data = await resp.json();
+                if (resp.ok && data.access_token) {
+                    localStorage.setItem('jwt', data.access_token);
+                    message.textContent = 'Registration successful!';
+                    message.className = 'success';
+                } else {
+                    message.textContent = data.detail || 'Registration failed.';
+                    message.className = 'error';
+                }
+            } catch (err) {
+                message.textContent = 'Network error.';
+                message.className = 'error';
+            }
+        };
+    </script>
+</body>
+</html>

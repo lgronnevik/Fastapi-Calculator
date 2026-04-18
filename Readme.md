@@ -1,3 +1,25 @@
+## User Authentication & Front-End Pages
+
+- User registration and login are available at:
+  - http://localhost:8000/register
+  - http://localhost:8000/login
+- These pages include client-side validation for email and password requirements.
+- Upon successful registration or login, a JWT access token is stored in localStorage for authenticated API access.
+- All user and calculation endpoints are protected with JWT authentication.
+
+## Playwright E2E Tests for Auth
+
+- End-to-end tests for registration and login flows are implemented using Playwright in `tests/test_e2e_auth.py`.
+- These tests cover:
+  - Successful registration and login
+  - Validation errors (e.g., short password)
+  - Error handling for invalid credentials
+- To run only the auth E2E tests:
+
+```sh
+pytest tests/test_e2e_auth.py
+```
+
 # FastAPI Calculator
 
 FastAPI-based calculator supporting add, subtract, multiply, divide.  
