@@ -29,7 +29,7 @@ BASE_URL = "http://localhost:8000"
 @pytest_asyncio.fixture(scope="session")
 async def browser():
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False)  # Headed mode for debugging
+        browser = await p.chromium.launch(headless=True)
         yield browser
         await browser.close()
 
