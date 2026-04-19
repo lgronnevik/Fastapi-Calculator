@@ -46,9 +46,12 @@ async def test_debug_register_page(page):
 
 @pytest_asyncio.fixture(scope="session")
 async def browser():
+    print("\n[DEBUG] Launching Playwright browser (headed, slow_mo=500)...\n")
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
+        browser = await p.chromium.launch(headless=False, slow_mo=500)
+        print("[DEBUG] Playwright browser launched.")
         yield browser
+        print("[DEBUG] Closing Playwright browser.")
         await browser.close()
 
 @pytest_asyncio.fixture(scope="function")
