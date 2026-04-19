@@ -24,7 +24,7 @@ import uuid
 from playwright.async_api import async_playwright
 import pytest_asyncio
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = "http://127.0.0.1:8000"
 
 @pytest_asyncio.fixture(scope="session")
 async def browser():
