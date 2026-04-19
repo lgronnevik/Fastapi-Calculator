@@ -9,7 +9,7 @@ from playwright.async_api import async_playwright
 if sys.platform.startswith('win'):
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-BASE_URL = "http://127.0.0.1:8000"
+BASE_URL = "http://localhost:8000"
 
 @pytest.mark.asyncio
 async def test_server_reachable(page):
