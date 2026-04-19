@@ -48,7 +48,7 @@ async def test_debug_register_page(page):
 async def browser():
     print("\n[DEBUG] Launching Playwright browser (headless=True)...\n")
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
+        browser = await p.chromium.launch(headless=True, args=["--no-sandbox"])
         print("[DEBUG] Playwright browser launched.")
         yield browser
         print("[DEBUG] Closing Playwright browser.")
