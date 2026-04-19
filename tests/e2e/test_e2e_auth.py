@@ -1,3 +1,10 @@
+@pytest.mark.asyncio
+async def test_server_reachable(page):
+    response = await page.goto(f"{BASE_URL}/")
+    print("\n\n--- Server reachability test ---\n")
+    print("Status:", response.status if response else "No response")
+    print("\n--- end server reachability test ---\n")
+    assert response is not None and response.status == 200
 import pytest
 import sys
 import asyncio
