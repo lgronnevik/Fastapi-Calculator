@@ -64,6 +64,8 @@ jobs:
       run: pytest --timeout=60 --ignore=tests/e2e/
 
     - name: Run Playwright end-to-end tests
+      env:
+        CI: 1
       run: pytest -v --tb=short --timeout=60 tests/e2e/
 
     - name: Print server log after E2E tests
