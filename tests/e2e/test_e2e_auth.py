@@ -1,3 +1,17 @@
+import httpx
+
+# Diagnostic: Can Python (not Playwright) reach the server?
+def test_server_reachable_httpx():
+    try:
+        resp = httpx.get(f"{BASE_URL}/", timeout=5)
+        print("\n\n--- HTTPX server reachability test ---\n")
+        print("Status:", resp.status_code)
+        print("Body:", resp.text[:200])
+        print("\n--- end HTTPX server reachability test ---\n")
+        assert resp.status_code == 200
+    except Exception as e:
+        print("HTTPX request failed:", e)
+        assert False, f"HTTPX could not reach server: {e}"
 
 import sys
 import asyncio
