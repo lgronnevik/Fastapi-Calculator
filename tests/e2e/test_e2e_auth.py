@@ -1,3 +1,4 @@
+import pytest
 @pytest.mark.asyncio
 async def test_server_reachable(page):
     response = await page.goto(f"{BASE_URL}/")
