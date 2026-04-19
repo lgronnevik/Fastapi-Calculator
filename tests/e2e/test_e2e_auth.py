@@ -1,4 +1,16 @@
+
+import sys
+import asyncio
+import uuid
 import pytest
+import pytest_asyncio
+from playwright.async_api import async_playwright
+
+if sys.platform.startswith('win'):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+BASE_URL = "http://127.0.0.1:8000"
+
 @pytest.mark.asyncio
 async def test_server_reachable(page):
     response = await page.goto(f"{BASE_URL}/")
@@ -6,33 +18,17 @@ async def test_server_reachable(page):
     print("Status:", response.status if response else "No response")
     print("\n--- end server reachability test ---\n")
     assert response is not None and response.status == 200
-import pytest
-import sys
-import asyncio
-if sys.platform.startswith('win'):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-from playwright.async_api import async_playwright
-import pytest_asyncio
 
 # ...existing code...
 
 @pytest.mark.asyncio
 async def test_debug_register_page(page):
+
     await page.goto(f"{BASE_URL}/register")
     content = await page.content()
     print("\n\n--- /register page content ---\n")
     print(content)
     print("\n--- end /register page content ---\n")
-import sys
-import asyncio
-if sys.platform.startswith('win'):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-import pytest
-import uuid
-from playwright.async_api import async_playwright
-import pytest_asyncio
-
-BASE_URL = "http://127.0.0.1:8000"
 
 @pytest_asyncio.fixture(scope="session")
 async def browser():
