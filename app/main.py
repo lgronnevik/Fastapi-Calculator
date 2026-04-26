@@ -1,5 +1,5 @@
-
-from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi import FastAPI, HTTPException, Depends, Request, Form
+from fastapi.responses import RedirectResponse
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 import os
@@ -116,83 +116,81 @@ def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = D
     return {"access_token": access_token, "token_type": "bearer"}
 
 # ----------------------
-# CALCULATION ROUTES (BREAD)
+# CALCULATION FRONTEND ROUTES
 # ----------------------
-from typing import List
+@app.get("/calculations", response_class=HTMLResponse)
+def calculations_page(request: Request, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    calculations = db.query(models.Calculation).filter(models.Calculation.user_id == current_user.id).all()
+    return templates.TemplateResponse("calculations.html", {"request": request, "calculations": calculations})
 
-# Browse all calculations
-@app.get("/calculations", response_model=List[schemas.CalculationRead])
-def browse_calculations(db: Session = Depends(get_db)):
-    return db.query(models.Calculation).all()
+@app.get("/calculations/add", response_class=HTMLResponse)
+def add_calculation_page(request: Request):
+    return templates.TemplateResponse("add_calculation.html", {"request": request})
 
-# Read a specific calculation
-@app.get("/calculations/{calc_id}", response_model=schemas.CalculationRead)
-def read_calculation(calc_id: int, db: Session = Depends(get_db)):
-    calculation = db.query(models.Calculation).filter(models.Calculation.id == calc_id).first()
-    if not calculation:
-        raise HTTPException(status_code=404, detail="Calculation not found")
-    return calculation
-
-# Add a new calculation
-@app.post("/calculations", response_model=schemas.CalculationRead)
-def add_calculation(calc: schemas.CalculationCreate, db: Session = Depends(get_db)):
-    # Perform calculation
-    if calc.type == "Add":
-        result = calc.a + calc.b
-    elif calc.type == "Sub":
-        result = calc.a - calc.b
-    elif calc.type == "Multiply":
-        result = calc.a * calc.b
-    elif calc.type == "Divide":
-        if calc.b == 0:
-            raise HTTPException(status_code=400, detail="Division by zero is not allowed.")
-        result = calc.a / calc.b
-    else:
-        raise HTTPException(status_code=400, detail="Invalid calculation type")
-    new_calc = models.Calculation(
-        a=calc.a,
-        b=calc.b,
-        type=calc.type,
-        result=result
-    )
+@app.post("/calculations/add", response_class=HTMLResponse)
+def add_calculation_form(request: Request, a: float = Form(...), b: float = Form(...), type: str = Form(...), db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    # Validate type
+    if type not in ["Add", "Sub", "Multiply", "Divide"]:
+        return templates.TemplateResponse("add_calculation.html", {"request": request, "error": "Invalid operation type."})
+    # Validate division by zero
+    if type == "Divide" and b == 0:
+        return templates.TemplateResponse("add_calculation.html", {"request": request, "error": "Division by zero is not allowed."})
+    # Calculate result
+    if type == "Add":
+        result = a + b
+    elif type == "Sub":
+        result = a - b
+    elif type == "Multiply":
+        result = a * b
+    elif type == "Divide":
+        result = a / b
+    new_calc = models.Calculation(a=a, b=b, type=type, result=result, user_id=current_user.id)
     db.add(new_calc)
     db.commit()
-    db.refresh(new_calc)
-    return new_calc
+    return RedirectResponse("/calculations", status_code=303)
 
-# Edit (update) a calculation
-@app.put("/calculations/{calc_id}", response_model=schemas.CalculationRead)
-def edit_calculation(calc_id: int, calc: schemas.CalculationCreate, db: Session = Depends(get_db)):
-    calculation = db.query(models.Calculation).filter(models.Calculation.id == calc_id).first()
-    if not calculation:
-        raise HTTPException(status_code=404, detail="Calculation not found")
-    # Update fields
-    calculation.a = calc.a
-    calculation.b = calc.b
-    calculation.type = calc.type
-    # Recalculate result
-    if calc.type == "Add":
-        calculation.result = calc.a + calc.b
-    elif calc.type == "Sub":
-        calculation.result = calc.a - calc.b
-    elif calc.type == "Multiply":
-        calculation.result = calc.a * calc.b
-    elif calc.type == "Divide":
-        if calc.b == 0:
-            raise HTTPException(status_code=400, detail="Division by zero is not allowed.")
-        calculation.result = calc.a / calc.b
-    else:
-        raise HTTPException(status_code=400, detail="Invalid calculation type")
-    db.commit()
-    db.refresh(calculation)
-    return calculation
+@app.get("/calculations/{calc_id}", response_class=HTMLResponse)
+def calculation_detail_page(calc_id: int, request: Request, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    calc = db.query(models.Calculation).filter(models.Calculation.id == calc_id, models.Calculation.user_id == current_user.id).first()
+    if not calc:
+        return HTMLResponse("Calculation not found", status_code=404)
+    return templates.TemplateResponse("calculation_detail.html", {"request": request, "calc": calc})
 
-# Delete a calculation
-@app.delete("/calculations/{calc_id}")
-def delete_calculation(calc_id: int, db: Session = Depends(get_db)):
-    calculation = db.query(models.Calculation).filter(models.Calculation.id == calc_id).first()
-    if not calculation:
-        raise HTTPException(status_code=404, detail="Calculation not found")
-    db.delete(calculation)
+@app.get("/calculations/{calc_id}/edit", response_class=HTMLResponse)
+def edit_calculation_page(calc_id: int, request: Request, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    calc = db.query(models.Calculation).filter(models.Calculation.id == calc_id, models.Calculation.user_id == current_user.id).first()
+    if not calc:
+        return HTMLResponse("Calculation not found", status_code=404)
+    return templates.TemplateResponse("edit_calculation.html", {"request": request, "calc": calc})
+
+@app.post("/calculations/{calc_id}/edit", response_class=HTMLResponse)
+def edit_calculation_form(calc_id: int, request: Request, a: float = Form(...), b: float = Form(...), type: str = Form(...), db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    calc = db.query(models.Calculation).filter(models.Calculation.id == calc_id, models.Calculation.user_id == current_user.id).first()
+    if not calc:
+        return HTMLResponse("Calculation not found", status_code=404)
+    if type not in ["Add", "Sub", "Multiply", "Divide"]:
+        return templates.TemplateResponse("edit_calculation.html", {"request": request, "calc": calc, "error": "Invalid operation type."})
+    if type == "Divide" and b == 0:
+        return templates.TemplateResponse("edit_calculation.html", {"request": request, "calc": calc, "error": "Division by zero is not allowed."})
+    calc.a = a
+    calc.b = b
+    calc.type = type
+    if type == "Add":
+        calc.result = a + b
+    elif type == "Sub":
+        calc.result = a - b
+    elif type == "Multiply":
+        calc.result = a * b
+    elif type == "Divide":
+        calc.result = a / b
     db.commit()
-    return {"detail": "Calculation deleted"}
+    return RedirectResponse(f"/calculations/{calc_id}", status_code=303)
+
+@app.post("/calculations/{calc_id}/delete", response_class=HTMLResponse)
+def delete_calculation_form(calc_id: int, request: Request, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    calc = db.query(models.Calculation).filter(models.Calculation.id == calc_id, models.Calculation.user_id == current_user.id).first()
+    if not calc:
+        return HTMLResponse("Calculation not found", status_code=404)
+    db.delete(calc)
+    db.commit()
+    return RedirectResponse("/calculations", status_code=303)

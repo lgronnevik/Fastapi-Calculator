@@ -1,3 +1,5 @@
+# FastAPI Calculator: BREAD Operations, Docker, CI/CD, and E2E Testing Assignment
+
 ## User Authentication & Front-End Pages
 
 - User registration and login are available at:
@@ -100,4 +102,43 @@ Your Docker image is automatically pushed to Docker Hub by the CI/CD pipeline:
 - To run all integration tests locally: `pytest`
 - To manually check endpoints, visit [http://localhost:8000/docs](http://localhost:8000/docs) after starting the app.
 - All endpoints (user registration/login, calculation BREAD) are documented and testable in the OpenAPI UI.
+
+## Calculation BREAD Operations
+
+- Browse, Read, Edit, Add, and Delete calculations for the logged-in user.
+- All calculation endpoints are protected and user-specific.
+- Front-end pages for all calculation operations are available at http://localhost:8000/calculations (after login).
+
+## Running the Application
+
+1. Install dependencies:
+   ```sh
+   pip install -r requirements.txt
+   ```
+2. Start the server:
+   ```sh
+   uvicorn app.main:app --reload
+   ```
+3. Visit http://localhost:8000/register to create a user, then log in and access calculations.
+
+## Running Tests
+
+- Run all tests (unit, integration, E2E):
+  ```sh
+  pytest
+  ```
+- Run Playwright E2E tests:
+  ```sh
+  pytest tests/test_calculations_e2e.py
+  ```
+
+## Docker & CI/CD
+
+- The project includes a Dockerfile and docker-compose.yml for containerization.
+- GitHub Actions workflow automatically runs tests and pushes the Docker image to Docker Hub on each push to main.
+- Set `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` as GitHub repository secrets for Docker image publishing.
+
+## Docker Hub
+
+- Docker image: https://hub.docker.com/repository/docker/lgronnevik/fastapi-calculator
 

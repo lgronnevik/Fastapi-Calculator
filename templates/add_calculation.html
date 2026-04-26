@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Calculation</title>
+</head>
+<body>
+    <h1>Add Calculation</h1>
+    <form action="/calculations/add" method="post">
+        <label>A: <input type="number" name="a" required></label><br>
+        <label>B: <input type="number" name="b" required></label><br>
+        <label>Type:
+            <select name="type" required>
+                <option value="Add">Add</option>
+                <option value="Sub">Sub</option>
+                <option value="Multiply">Multiply</option>
+                <option value="Divide">Divide</option>
+            </select>
+        </label><br>
+        <button type="submit">Add</button>
+    </form>
+    <a href="/calculations">Back to Calculations</a>
+</body>
+</html>

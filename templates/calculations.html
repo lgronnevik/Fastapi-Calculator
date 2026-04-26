@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Calculations</title>
+</head>
+<body>
+    <h1>My Calculations</h1>
+    <a href="/calculations/add">Add New Calculation</a>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>A</th>
+                <th>B</th>
+                <th>Type</th>
+                <th>Result</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for calc in calculations %}
+            <tr>
+                <td>{{ calc.id }}</td>
+                <td>{{ calc.a }}</td>
+                <td>{{ calc.b }}</td>
+                <td>{{ calc.type }}</td>
+                <td>{{ calc.result }}</td>
+                <td>
+                    <a href="/calculations/{{ calc.id }}">Read</a> |
+                    <a href="/calculations/{{ calc.id }}/edit">Edit</a> |
+                    <form action="/calculations/{{ calc.id }}/delete" method="post" style="display:inline;">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

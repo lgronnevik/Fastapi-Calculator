@@ -52,13 +52,17 @@ jobs:
       run: |
         nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 > server.log 2>&1 &
 
-    - name: Wait for server
+    - name: Wait for server (curl)
       run: |
         for i in {1..30}; do
-          nc -z localhost 8000 && echo "Server is up!" && exit 0
-          sleep 1
+          if curl -s http://127.0.0.1:8000/; then
+            echo "Server is up!"
+            exit 0
+          fi
+          echo "Waiting for server... ($i)"
+          sleep 2
         done
-        echo "Server did not start in time" && tail -40 server.log && exit 1
+        echo "Server did not start in time" && cat server.log && exit 1
 
     - name: Run unit & integration tests
       run: pytest --timeout=60 --ignore=tests/e2e/

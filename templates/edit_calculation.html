@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Calculation</title>
+</head>
+<body>
+    <h1>Edit Calculation</h1>
+    <form action="/calculations/{{ calc.id }}/edit" method="post">
+        <label>A: <input type="number" name="a" value="{{ calc.a }}" required></label><br>
+        <label>B: <input type="number" name="b" value="{{ calc.b }}" required></label><br>
+        <label>Type:
+            <select name="type" required>
+                <option value="Add" {% if calc.type == 'Add' %}selected{% endif %}>Add</option>
+                <option value="Sub" {% if calc.type == 'Sub' %}selected{% endif %}>Sub</option>
+                <option value="Multiply" {% if calc.type == 'Multiply' %}selected{% endif %}>Multiply</option>
+                <option value="Divide" {% if calc.type == 'Divide' %}selected{% endif %}>Divide</option>
+            </select>
+        </label><br>
+        <button type="submit">Update</button>
+    </form>
+    <a href="/calculations">Back to Calculations</a>
+</body>
+</html>
