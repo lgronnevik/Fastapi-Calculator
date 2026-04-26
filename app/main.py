@@ -23,7 +23,7 @@ templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "..", "templates"))
 # CALCULATION API ROUTES (JSON, for tests)
 # ----------------------
 # Create calculation
-@app.post("/api/calculations", response_model=schemas.Calculation)
+@app.post("/api/calculations", response_model=schemas.CalculationRead)
 def api_create_calculation(calc: CalculationCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
     # Validate type
     if calc.type not in ["Add", "Sub", "Multiply", "Divide"]:
@@ -44,16 +44,14 @@ def api_create_calculation(calc: CalculationCreate, db: Session = Depends(get_db
     db.refresh(new_calc)
     return new_calc
 
-# Read calculation
-@app.get("/api/calculations/{calc_id}", response_model=schemas.Calculation)
+@app.get("/api/calculations/{calc_id}", response_model=schemas.CalculationRead)
 def api_get_calculation(calc_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
     calc = db.query(models.Calculation).filter(models.Calculation.id == calc_id, models.Calculation.user_id == current_user.id).first()
     if not calc:
         return JSONResponse(status_code=404, content={"detail": "Calculation not found"})
     return calc
 
-# Update calculation
-@app.put("/api/calculations/{calc_id}", response_model=schemas.Calculation)
+@app.put("/api/calculations/{calc_id}", response_model=schemas.CalculationRead)
 def api_update_calculation(calc_id: int, update: CalculationUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
     calc = db.query(models.Calculation).filter(models.Calculation.id == calc_id, models.Calculation.user_id == current_user.id).first()
     if not calc:
@@ -87,8 +85,7 @@ def api_delete_calculation(calc_id: int, db: Session = Depends(get_db), current_
     db.commit()
     return {"detail": "Calculation deleted"}
 
-# List calculations
-@app.get("/api/calculations", response_model=list[schemas.Calculation])
+@app.get("/api/calculations", response_model=list[schemas.CalculationRead])
 def api_list_calculations(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
     return db.query(models.Calculation).filter(models.Calculation.user_id == current_user.id).all()
 from fastapi.templating import Jinja2Templates
