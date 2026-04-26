@@ -1,7 +1,7 @@
 import sys
+import pytest
 if not sys.platform.startswith('win'):
-    print("Skipping test on non-Windows platform")
-    sys.exit(0)
+    pytest.skip("Skipping test on non-Windows platform", allow_module_level=True)
 import asyncio
 import sys
 if sys.platform.startswith('win'):
