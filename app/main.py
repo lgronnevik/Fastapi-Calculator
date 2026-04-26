@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, Request, Form, status
 from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
+from fastapi.templating import Jinja2Templates
 import os
 from sqlalchemy.orm import Session
 import logging
