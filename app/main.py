@@ -10,6 +10,7 @@ from app.schemas import CalculationCreate, CalculationUpdate
 
 app = FastAPI(title="FastAPI Calculator")
 
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
@@ -18,6 +19,14 @@ models.Base.metadata.create_all(bind=database.engine)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "..", "templates"))
+
+# Dependency to get DB session (must be above all endpoints)
+def get_db():
+    db = database.SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 # ----------------------
 # CALCULATION API ROUTES (JSON, for tests)
