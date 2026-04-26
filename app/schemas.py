@@ -1,3 +1,13 @@
+class CalculationUpdate(BaseModel):
+    a: float
+    b: float
+    type: Literal["Add", "Sub", "Multiply", "Divide"]
+
+    @model_validator(mode="after")
+    def check_division_by_zero(self):
+        if self.type == "Divide" and self.b == 0:
+            raise ValueError("Division by zero is not allowed.")
+        return self
 from typing import Optional, Literal
 from pydantic import BaseModel, EmailStr, model_validator
 
