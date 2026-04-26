@@ -84,6 +84,7 @@ def api_update_calculation(calc_id: int, update: CalculationUpdate, db: Session 
     db.refresh(calc)
     return calc
 
+
 # Delete calculation
 @app.delete("/api/calculations/{calc_id}")
 def api_delete_calculation(calc_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
@@ -93,6 +94,11 @@ def api_delete_calculation(calc_id: int, db: Session = Depends(get_db), current_
     db.delete(calc)
     db.commit()
     return {"detail": "Calculation deleted"}
+
+# List calculations (browse)
+@app.get("/api/calculations", response_model=list[schemas.CalculationRead])
+def api_list_calculations(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    return db.query(models.Calculation).filter(models.Calculation.user_id == current_user.id).all()
 
 
 
