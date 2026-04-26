@@ -94,26 +94,7 @@ def api_delete_calculation(calc_id: int, db: Session = Depends(get_db), current_
     db.commit()
     return {"detail": "Calculation deleted"}
 
-@app.get("/api/calculations", response_model=list[schemas.CalculationRead])
-def api_list_calculations(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
-    return db.query(models.Calculation).filter(models.Calculation.user_id == current_user.id).all()
-from fastapi.templating import Jinja2Templates
-import os
-from sqlalchemy.orm import Session
-import logging
-from app.operations import add, subtract, multiply, divide
-from app import models, schemas, database, auth
 
-app = FastAPI(title="FastAPI Calculator")
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-
-# Create DB tables
-models.Base.metadata.create_all(bind=database.engine)
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "..", "templates"))
 
 # ----------------------
 # FRONTEND ROUTES
