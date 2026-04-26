@@ -1,11 +1,26 @@
+from fastapi import FastAPI, HTTPException, Depends, Request, Form, status
+from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
+import os
+from sqlalchemy.orm import Session
+import logging
+from app.operations import add, subtract, multiply, divide
+from app import models, schemas, database, auth
+from app.schemas import CalculationCreate, CalculationUpdate
+
+app = FastAPI(title="FastAPI Calculator")
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+# Create DB tables
+models.Base.metadata.create_all(bind=database.engine)
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "..", "templates"))
+
 # ----------------------
 # CALCULATION API ROUTES (JSON, for tests)
 # ----------------------
-from fastapi import status
-from fastapi.responses import JSONResponse
-
-from app.schemas import CalculationCreate, CalculationUpdate
-
 # Create calculation
 @app.post("/api/calculations", response_model=schemas.Calculation)
 def api_create_calculation(calc: CalculationCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
@@ -75,9 +90,6 @@ def api_delete_calculation(calc_id: int, db: Session = Depends(get_db), current_
 @app.get("/api/calculations", response_model=list[schemas.Calculation])
 def api_list_calculations(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
     return db.query(models.Calculation).filter(models.Calculation.user_id == current_user.id).all()
-from fastapi import FastAPI, HTTPException, Depends, Request, Form
-from fastapi.responses import RedirectResponse
-from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 import os
 from sqlalchemy.orm import Session
