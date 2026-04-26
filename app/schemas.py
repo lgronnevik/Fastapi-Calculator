@@ -1,3 +1,8 @@
+
+from typing import Optional, Literal
+from pydantic import BaseModel, EmailStr, model_validator
+
+# CalculationUpdate schema (moved below imports)
 class CalculationUpdate(BaseModel):
     a: float
     b: float
@@ -8,8 +13,6 @@ class CalculationUpdate(BaseModel):
         if self.type == "Divide" and self.b == 0:
             raise ValueError("Division by zero is not allowed.")
         return self
-from typing import Optional, Literal
-from pydantic import BaseModel, EmailStr, model_validator
 
 # User Schemas
 class UserCreate(BaseModel):
