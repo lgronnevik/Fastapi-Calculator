@@ -1,5 +1,3 @@
-# FastAPI Calculator: BREAD Operations, Docker, CI/CD, and E2E Testing Assignment
-
 ## User Authentication & Front-End Pages
 
 - User registration and login are available at:
