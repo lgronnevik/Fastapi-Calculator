@@ -1,3 +1,80 @@
+# ----------------------
+# CALCULATION API ROUTES (JSON, for tests)
+# ----------------------
+from fastapi import status
+from fastapi.responses import JSONResponse
+
+from app.schemas import CalculationCreate, CalculationUpdate
+
+# Create calculation
+@app.post("/api/calculations", response_model=schemas.Calculation)
+def api_create_calculation(calc: CalculationCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    # Validate type
+    if calc.type not in ["Add", "Sub", "Multiply", "Divide"]:
+        return JSONResponse(status_code=422, content={"detail": [{"msg": "Invalid calculation type"}]})
+    if calc.type == "Divide" and calc.b == 0:
+        return JSONResponse(status_code=422, content={"detail": [{"msg": "Division by zero"}]})
+    if calc.type == "Add":
+        result = calc.a + calc.b
+    elif calc.type == "Sub":
+        result = calc.a - calc.b
+    elif calc.type == "Multiply":
+        result = calc.a * calc.b
+    elif calc.type == "Divide":
+        result = calc.a / calc.b
+    new_calc = models.Calculation(a=calc.a, b=calc.b, type=calc.type, result=result, user_id=current_user.id)
+    db.add(new_calc)
+    db.commit()
+    db.refresh(new_calc)
+    return new_calc
+
+# Read calculation
+@app.get("/api/calculations/{calc_id}", response_model=schemas.Calculation)
+def api_get_calculation(calc_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    calc = db.query(models.Calculation).filter(models.Calculation.id == calc_id, models.Calculation.user_id == current_user.id).first()
+    if not calc:
+        return JSONResponse(status_code=404, content={"detail": "Calculation not found"})
+    return calc
+
+# Update calculation
+@app.put("/api/calculations/{calc_id}", response_model=schemas.Calculation)
+def api_update_calculation(calc_id: int, update: CalculationUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    calc = db.query(models.Calculation).filter(models.Calculation.id == calc_id, models.Calculation.user_id == current_user.id).first()
+    if not calc:
+        return JSONResponse(status_code=404, content={"detail": "Calculation not found"})
+    if update.type not in ["Add", "Sub", "Multiply", "Divide"]:
+        return JSONResponse(status_code=422, content={"detail": [{"msg": "Invalid calculation type"}]})
+    if update.type == "Divide" and update.b == 0:
+        return JSONResponse(status_code=422, content={"detail": [{"msg": "Division by zero"}]})
+    calc.a = update.a
+    calc.b = update.b
+    calc.type = update.type
+    if update.type == "Add":
+        calc.result = update.a + update.b
+    elif update.type == "Sub":
+        calc.result = update.a - update.b
+    elif update.type == "Multiply":
+        calc.result = update.a * update.b
+    elif update.type == "Divide":
+        calc.result = update.a / update.b
+    db.commit()
+    db.refresh(calc)
+    return calc
+
+# Delete calculation
+@app.delete("/api/calculations/{calc_id}")
+def api_delete_calculation(calc_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    calc = db.query(models.Calculation).filter(models.Calculation.id == calc_id, models.Calculation.user_id == current_user.id).first()
+    if not calc:
+        return JSONResponse(status_code=404, content={"detail": "Calculation not found"})
+    db.delete(calc)
+    db.commit()
+    return {"detail": "Calculation deleted"}
+
+# List calculations
+@app.get("/api/calculations", response_model=list[schemas.Calculation])
+def api_list_calculations(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    return db.query(models.Calculation).filter(models.Calculation.user_id == current_user.id).all()
 from fastapi import FastAPI, HTTPException, Depends, Request, Form
 from fastapi.responses import RedirectResponse
 from fastapi.responses import HTMLResponse
