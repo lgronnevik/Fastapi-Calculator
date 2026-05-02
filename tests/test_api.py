@@ -44,5 +44,4 @@ def test_exponentiation_endpoint():
     assert response.status_code == 200
     assert response.json()["result"] == 5
     # Exponentiation is not a direct endpoint, but is available via /api/calculations
-    # This is tested in test_calculations.py
-    assert response.json()["detail"] == "Cannot divide by zero"
+    # Exponentiation is tested in test_calculations.py
