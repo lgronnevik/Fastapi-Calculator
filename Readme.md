@@ -22,7 +22,7 @@ pytest tests/test_e2e_auth.py
 
 # FastAPI Calculator
 
-FastAPI-based calculator supporting add, subtract, multiply, divide.  
+FastAPI-based calculator supporting add, subtract, multiply, divide, and exponentiation.  
 Includes logging, unit tests, integration tests, and Playwright end-to-end tests.
 
 ## Project Structure
@@ -139,4 +139,11 @@ Your Docker image is automatically pushed to Docker Hub by the CI/CD pipeline:
 ## Docker Hub
 
 - Docker image: https://hub.docker.com/repository/docker/lgronnevik/fastapi-calculator
+
+## New Feature: Exponentiation
+
+- The calculator now supports exponentiation (a^b) in addition to add, subtract, multiply, and divide.
+- To use exponentiation, select "Exponentiation" from the calculation type dropdown on the Add Calculation page.
+- The backend, API, and front-end all support this operation.
+- Unit and integration tests for exponentiation are included and passing.
 

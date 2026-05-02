@@ -12,6 +12,10 @@ def divide(a: float, b: float) -> float:
         raise ValueError("Cannot divide by zero")
     return a / b
     
+# Exponentiation operation
+def exponentiate(a: float, b: float) -> float:
+    return a ** b
+    
 # ...existing code...
 
 # Factory Pattern Implementation
@@ -31,9 +35,17 @@ class MultiplyOperation(CalculationOperation):
     def compute(self, a: float, b: float) -> float:
         return multiply(a, b)
 
+
+
 class DivideOperation(CalculationOperation):
     def compute(self, a: float, b: float) -> float:
         return divide(a, b)
+
+# Exponentiation operation class
+class ExpOperation(CalculationOperation):
+    def compute(self, a: float, b: float) -> float:
+        return exponentiate(a, b)
+
 
 class CalculationFactory:
     operations = {
@@ -41,6 +53,7 @@ class CalculationFactory:
         "Sub": SubOperation(),
         "Multiply": MultiplyOperation(),
         "Divide": DivideOperation(),
+        "Exponentiation": ExpOperation(),
     }
 
     @classmethod

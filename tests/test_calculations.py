@@ -37,6 +37,18 @@ def test_create_calculation():
     assert data["type"] == "Add"
     assert data["result"] == 15
     calc_id = data["id"]
+    # Exponentiation calculation
+    exp_resp = client.post("/api/calculations", json={
+        "a": 2,
+        "b": 3,
+        "type": "Exponentiation"
+    }, headers=headers)
+    assert exp_resp.status_code == 200
+    exp_data = exp_resp.json()
+    assert exp_data["a"] == 2
+    assert exp_data["b"] == 3
+    assert exp_data["type"] == "Exponentiation"
+    assert exp_data["result"] == 8
 
     # Read calculation
     get_resp = client.get(f"/api/calculations/{calc_id}", headers=headers)

@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 import os
 from sqlalchemy.orm import Session
 import logging
-from app.operations import add, subtract, multiply, divide
+from app.operations import add, subtract, multiply, divide, exponentiate
 from app import models, schemas, database, auth
 from app.schemas import CalculationCreate, CalculationUpdate
 
@@ -35,7 +35,7 @@ def get_db():
 @app.post("/api/calculations", response_model=schemas.CalculationRead)
 def api_create_calculation(calc: CalculationCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
     # Validate type
-    if calc.type not in ["Add", "Sub", "Multiply", "Divide"]:
+    if calc.type not in ["Add", "Sub", "Multiply", "Divide", "Exponentiation"]:
         return JSONResponse(status_code=422, content={"detail": [{"msg": "Invalid calculation type"}]})
     if calc.type == "Divide" and calc.b == 0:
         return JSONResponse(status_code=422, content={"detail": [{"msg": "Division by zero"}]})
@@ -47,6 +47,8 @@ def api_create_calculation(calc: CalculationCreate, db: Session = Depends(get_db
         result = calc.a * calc.b
     elif calc.type == "Divide":
         result = calc.a / calc.b
+    elif calc.type == "Exponentiation":
+        result = exponentiate(calc.a, calc.b)
     new_calc = models.Calculation(a=calc.a, b=calc.b, type=calc.type, result=result, user_id=current_user.id)
     db.add(new_calc)
     db.commit()
@@ -65,7 +67,7 @@ def api_update_calculation(calc_id: int, update: CalculationUpdate, db: Session 
     calc = db.query(models.Calculation).filter(models.Calculation.id == calc_id, models.Calculation.user_id == current_user.id).first()
     if not calc:
         return JSONResponse(status_code=404, content={"detail": "Calculation not found"})
-    if update.type not in ["Add", "Sub", "Multiply", "Divide"]:
+    if update.type not in ["Add", "Sub", "Multiply", "Divide", "Exponentiation"]:
         return JSONResponse(status_code=422, content={"detail": [{"msg": "Invalid calculation type"}]})
     if update.type == "Divide" and update.b == 0:
         return JSONResponse(status_code=422, content={"detail": [{"msg": "Division by zero"}]})
@@ -80,6 +82,8 @@ def api_update_calculation(calc_id: int, update: CalculationUpdate, db: Session 
         calc.result = update.a * update.b
     elif update.type == "Divide":
         calc.result = update.a / update.b
+    elif update.type == "Exponentiation":
+        calc.result = exponentiate(update.a, update.b)
     db.commit()
     db.refresh(calc)
     return calc
@@ -213,7 +217,7 @@ def add_calculation_page(request: Request):
 @app.post("/calculations/add", response_class=HTMLResponse)
 def add_calculation_form(request: Request, a: float = Form(...), b: float = Form(...), type: str = Form(...), db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
     # Validate type
-    if type not in ["Add", "Sub", "Multiply", "Divide"]:
+    if type not in ["Add", "Sub", "Multiply", "Divide", "Exponentiation"]:
         return templates.TemplateResponse("add_calculation.html", {"request": request, "error": "Invalid operation type."})
     # Validate division by zero
     if type == "Divide" and b == 0:
@@ -227,6 +231,8 @@ def add_calculation_form(request: Request, a: float = Form(...), b: float = Form
         result = a * b
     elif type == "Divide":
         result = a / b
+    elif type == "Exponentiation":
+        result = exponentiate(a, b)
     new_calc = models.Calculation(a=a, b=b, type=type, result=result, user_id=current_user.id)
     db.add(new_calc)
     db.commit()

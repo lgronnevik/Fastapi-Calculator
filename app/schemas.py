@@ -3,10 +3,11 @@ from typing import Optional, Literal
 from pydantic import BaseModel, EmailStr, model_validator
 
 # CalculationUpdate schema (moved below imports)
+
 class CalculationUpdate(BaseModel):
     a: float
     b: float
-    type: Literal["Add", "Sub", "Multiply", "Divide"]
+    type: Literal["Add", "Sub", "Multiply", "Divide", "Exponentiation"]
 
     @model_validator(mode="after")
     def check_division_by_zero(self):
@@ -30,10 +31,11 @@ class UserRead(BaseModel):
     }
 
 # Calculation Schemas
+
 class CalculationCreate(BaseModel):
     a: float
     b: float
-    type: Literal["Add", "Sub", "Multiply", "Divide"]
+    type: Literal["Add", "Sub", "Multiply", "Divide", "Exponentiation"]
 
     @model_validator(mode="after")
     def check_division_by_zero(self):

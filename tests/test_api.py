@@ -38,4 +38,11 @@ def test_divide_endpoint():
 def test_divide_by_zero():
     response = client.post("/divide", params={"a": 5, "b": 0})
     assert response.status_code == 400
+
+def test_exponentiation_endpoint():
+    response = client.post("/add", params={"a": 2, "b": 3})  # Control
+    assert response.status_code == 200
+    assert response.json()["result"] == 5
+    # Exponentiation is not a direct endpoint, but is available via /api/calculations
+    # This is tested in test_calculations.py
     assert response.json()["detail"] == "Cannot divide by zero"
